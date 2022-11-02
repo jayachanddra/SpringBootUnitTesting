@@ -1,6 +1,7 @@
 package com.countryservice.demo.controllers;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,9 +25,15 @@ public class countryController {
 	CountryService countryService;
 	
 	@GetMapping("/getcountries")
-	public List getCountries() {
+	public ResponseEntity<List<Country>> getCountries() {
 		
-		return countryService.getAllCountries();
+		try {
+		List<Country> country=countryService.getAllCountries();
+		return new ResponseEntity<List<Country>>(country,HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<List<Country>>(HttpStatus.NOT_FOUND);
+		}
 	}
 	
 	
@@ -55,8 +62,16 @@ public class countryController {
 	}
 	
 	@PostMapping("/addCountry")
-	public Country addCountry(@RequestBody Country country) {
-		return countryService.addCountry(country);
+	public ResponseEntity<Country> addCountry(@RequestBody Country country) {
+		try {
+		country=countryService.addCountry(country);
+		return new ResponseEntity<Country>(country,HttpStatus.CREATED);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<Country>(country,HttpStatus.CONFLICT);
+
+		}
+		
 	}
 	
 	@PutMapping("/updateCountry/{id}")
@@ -73,11 +88,25 @@ public class countryController {
 		}		
 	}
 	
-	@DeleteMapping("/deleteCountry/{id}")
-	public AddResponse deleteCountry(@PathVariable(value="id") int id) {
-		return countryService.deleteCountry(id);
+	/*
+	 * @DeleteMapping("/deleteCountry/{id}") public AddResponse
+	 * deleteCountry(@PathVariable(value="id") int id) { return
+	 * countryService.deleteCountry(id); }
+	 */
+	
+	@DeleteMapping("/deleteCountry/{id}") 
+	public ResponseEntity<Country> deleteCountry(@PathVariable(value="id") int id){
+		Country country=null;
+		try {
+			
+			country=countryService.getCountryByID(id);
+			countryService.deleteCountry(country);
+		}
+		catch (NoSuchElementException e) {
+			
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Country>(country, HttpStatus.OK);
 	}
-	
-	
 	
 }

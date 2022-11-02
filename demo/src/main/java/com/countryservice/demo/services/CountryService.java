@@ -86,6 +86,10 @@ public class CountryService {
 		
 		
 	}
+	
+	public void deleteCountry(Country country) {
+		countryrepo.delete(country);
+	}
 
 	private int getMaxId() {
 		/*

@@ -1,13 +1,17 @@
 package com.countryservice.demo;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +21,7 @@ import com.countryservice.demo.services.CountryService;
 import com.countryservice.repositories.CountryRepository;
 
 @SpringBootTest(classes= {ServiceMackitoTests.class})
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ServiceMackitoTests {
 	
 	@Mock
@@ -39,7 +44,8 @@ public class ServiceMackitoTests {
 		assertEquals(2, countryService.getAllCountries().size());
 	}
 	
-	@Test @Order(2)
+	@Test 
+	@Order(2)
 	public void test_getCountryByID()
 	{
 		myCountries=new ArrayList<Country>();
@@ -51,7 +57,8 @@ public class ServiceMackitoTests {
 		assertEquals(1,countryService.getCountryByID(countryId).getId());	
 	}
 	
-	@Test @Order(3)
+	@Test
+	@Order(3)
 	public void test_getCountryByName()
 	{
 		myCountries=new ArrayList<Country>();
@@ -63,8 +70,30 @@ public class ServiceMackitoTests {
 		assertEquals(countryName,countryService.getCountryByName(countryName).getCountryName());	
 	}
 	
-	@Test @Order(4)
+	@Test 
+	@Order(4)
 	public void test_addCountry() {
-		
+		Country country=new Country(3,"Germany","Berlin");	
+		when(countryrepo.save(country)).thenReturn(country); //Mocking
+		assertEquals(country, countryService.addCountry(country));		
 	}
+	
+	@Test 
+	@Order(5)
+	public void test_updateCountry() {
+		Country country=new Country(3,"Germany","Berlin");	
+		when(countryrepo.save(country)).thenReturn(country); //Mocking
+		assertEquals(country, countryService.updateCountry(country));		
+	}
+	
+	@Test 
+	@Order(6)
+	public void test_deleteCountry() {
+		Country country=new Country(3,"Germany","Berlin");	
+		countryService.deleteCountry(country);
+		verify(countryrepo,times(1)).delete(country);
+	}
+	
+	
+	
 }
